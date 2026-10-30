@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- MANDATORY: Declare support for both light and dark themes before first paint -->
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="EduSMS — Hybrid Android SIM Gateway, SMS Automation, Bulk Campaigns & Simulation Sandbox Platform"
+    />
+    <title>EduSMS — Intelligent SMS Gateway & Automation Platform</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("edusms_theme") || "dark";
+          var mode = saved === "light" || saved === "dark" || saved === "system" ? saved : "dark";
+          var prefersDark =
+            typeof window.matchMedia === "function" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var resolved = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+          document.documentElement.dataset.theme = resolved;
+          document.documentElement.dataset.themeMode = mode;
+          document.documentElement.style.colorScheme = resolved;
+        } catch (_err) {
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduSMS — Interactive Server Startup & Copy-Paste Commands</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121a2f;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #7c3aed;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 20px;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+    .header {
+      background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(6,182,212,0.12));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p.sub { margin: 0; color: var(--muted); font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .card h2 { margin: 0 0 4px; font-size: 15px; }
+    .card p { margin: 0; font-size: 12px; color: var(--muted); }
+    button.copy-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    button.copy-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    button.copy-btn.copied { background: var(--emerald); }
+    pre {
+      margin: 0;
+      padding: 12px;
+      background: #060913;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #67e8f9;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>EduSMS — Server Startup, cPanel (<code>edusms.edusphere.co.tz</code>) &amp; GitHub Sync Commands</h1>
+      <p class="sub">Click any <strong>Copy Command</strong> button below to copy the exact commands to your clipboard.</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>1. Start PostgreSQL, Redis &amp; Django ASGI Server</h2>
+            <p>Starts local databases, runs migrations, and boots Daphne on port 8000.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd1')">Copy Command</button>
+        </div>
+        <pre id="cmd1">bash scripts/dev_services.sh start
+backend/.venv/bin/python backend/manage.py migrate
+backend/.venv/bin/daphne -b 0.0.0.0 -p 8000 --chdir backend edusms.asgi:application</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>2. Start React Web Dashboard</h2>
+            <p>Launches the Vite web frontend on http://localhost:5173.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd2')">Copy Command</button>
+        </div>
+        <pre id="cmd2">npm --prefix web run dev</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>3. Initialize &amp; Push to GitHub (Hemedi18/edusms)</h2>
+            <p>Initializes git on branch main and pushes to https://github.com/Hemedi18/edusms.git.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd3')">Copy Command</button>
+        </div>
+        <pre id="cmd3">echo "# edusms" >> README.md
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Hemedi18/edusms.git
+git push -u origin main</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>4. Sync Latest Code from GitHub to Server</h2>
+            <p>Pulls latest changes from origin/main, runs migrations, and rebuilds web assets.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd4')">Copy Command</button>
+        </div>
+        <pre id="cmd4">git fetch origin main
+git pull --ff-only origin main
+backend/.venv/bin/python backend/manage.py migrate --noinput
+npm --prefix web run build</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>5. Deploy on cPanel (edusms.edusphere.co.tz)</h2>
+            <p>Deploys EduSMS inside public_html/edusms and restarts Phusion Passenger.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd5')">Copy Command</button>
+        </div>
+        <pre id="cmd5">mkdir -p ~/public_html/edusms
+cd ~/public_html/edusms
+git clone https://github.com/Hemedi18/edusms.git . || git pull origin main
+python3 -m venv backend/.venv
+backend/.venv/bin/pip install -r backend/requirements.txt
+backend/.venv/bin/python backend/manage.py migrate --noinput
+backend/.venv/bin/python backend/manage.py collectstatic --noinput
+mkdir -p tmp && touch tmp/restart.txt</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <h2>6. Start Full Stack with Docker Compose</h2>
+            <p>Starts PostgreSQL, Redis, Django ASGI, Celery Worker/Beat, and Web Dashboard.</p>
+          </div>
+          <button class="copy-btn" onclick="copyCmd(this, 'cmd6')">Copy Command</button>
+        </div>
+        <pre id="cmd6">cp .env.example .env
+docker compose up --build -d
+docker compose exec backend python manage.py migrate</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyCmd(btn, id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      const original = btn.innerText;
+      btn.innerText = "Copied!";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.innerText = original;
+        btn.classList.remove("copied");
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
